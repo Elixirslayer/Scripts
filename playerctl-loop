@@ -5,19 +5,33 @@ update_dwmblocks() {
     pkill -RTMIN+11 dwmblocks
 }
 
-# Function to monitor metadata and status dynamically
+# Function to monitor all players dynamically
 monitor_players() {
-    # Listen for player changes
-    playerctl -l --follow | while read -r player; do
-        # Monitor metadata changes
-        playerctl --player="$player" metadata --format '{{title}}' --follow | while read -r title; do
-            update_dwmblocks
-        done &
+    declare -A active_players
 
-        # Monitor status changes
-        playerctl --player="$player" status --follow | while read -r status; do
-            update_dwmblocks
-        done &
+    playerctl -l --follow | while read -r player_list; do
+        # Convert player list to an array
+        mapfile -t players <<< "$player_list"
+
+        # Remove stopped players
+        for player in "${!active_players[@]}"; do
+            if ! printf "%s\n" "${players[@]}" | grep -qx "$player"; then
+                unset "active_players[$player]"
+            fi
+        done
+
+        # Start monitoring new players
+        for player in "${players[@]}"; do
+            if [[ -z "${active_players[$player]}" ]]; then
+                active_players[$player]=1
+                {
+                    playerctl --player="$player" metadata --format '{{title}}' --follow &
+                    playerctl --player="$player" status --follow
+                } | while read -r _; do
+                    update_dwmblocks
+                done &
+            fi
+        done
     done
 }
 
