@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# Function to send a signal to dwmblocks
+update_dwmblocks() {
+    pkill -RTMIN+11 dwmblocks
+}
+
+# Function to monitor metadata and status dynamically
+monitor_players() {
+    # Listen for player changes
+    playerctl -l --follow | while read -r player; do
+        # Monitor metadata changes
+        playerctl --player="$player" metadata --format '{{title}}' --follow | while read -r title; do
+            update_dwmblocks
+        done &
+
+        # Monitor status changes
+        playerctl --player="$player" status --follow | while read -r status; do
+            update_dwmblocks
+        done &
+    done
+}
+
+# Start monitoring
+monitor_players
+
