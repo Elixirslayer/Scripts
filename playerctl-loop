@@ -1,40 +1,9 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-# Function to send a signal to dwmblocks
-update_dwmblocks() {
-    pkill -RTMIN+11 dwmblocks
-}
+# This loop updates the mpd statusbar module whenever a media player changes state.
+# Requires playerctl and a MPRIS-compatible media player.
 
-# Function to monitor all players dynamically
-monitor_players() {
-    declare -A active_players
-
-    playerctl -l --follow | while read -r player_list; do
-        # Convert player list to an array
-        mapfile -t players <<< "$player_list"
-
-        # Remove stopped players
-        for player in "${!active_players[@]}"; do
-            if ! printf "%s\n" "${players[@]}" | grep -qx "$player"; then
-                unset "active_players[$player]"
-            fi
-        done
-
-        # Start monitoring new players
-        for player in "${players[@]}"; do
-            if [[ -z "${active_players[$player]}" ]]; then
-                active_players[$player]=1
-                {
-                    playerctl --player="$player" metadata --format '{{title}}' --follow &
-                    playerctl --player="$player" status --follow
-                } | while read -r _; do
-                    update_dwmblocks
-                done &
-            fi
-        done
-    done
-}
-
-# Start monitoring
-monitor_players
+while : ; do
+    playerctl -F metadata >/dev/null && kill -45 "$(pidof "${STATUSBAR:-dwmblocks}")" || break
+done
 
