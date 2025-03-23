@@ -1,9 +1,5 @@
 #!/bin/sh
 
-# This loop updates the mpd statusbar module whenever a media player changes state.
-# Requires playerctl and a MPRIS-compatible media player.
-
-while : ; do
-    playerctl -F metadata >/dev/null && kill -45 "$(pidof "${STATUSBAR:-dwmblocks}")" || break
+playerctl -a metadata --format '{{status}} - {{artist}} - {{title}}' --follow | while read -r line; do
+    pkill -RTMIN+11 "dwmblocks"
 done
-
