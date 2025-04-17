@@ -1,0 +1,25 @@
+#!/bin/zsh
+
+folder="/home/oc/Notes"
+
+newnote () {
+    name="$(echo "" | rofi -dmenu -p "Enter a name:")"
+    [[ -z "$name" ]] && return
+    setsid -f "$TERMINAL" -e vim "$folder/$name" >/dev/null 2>&1
+}
+
+selected () {
+    local files choice
+    files=("${(@f)$(ls -1t "$folder" 2>/dev/null)}")
+    files=("New" "${files[@]}")
+    choice=$(printf "%s\n" "${files[@]}" | rofi -dmenu -i -p "Choose note or create new:")
+    
+    case "$choice" in
+        "New") newnote ;;
+        "") exit ;;  # Nothing selected
+        *) setsid -f "$TERMINAL" -e vim "$folder/$choice" >/dev/null 2>&1 ;;
+    esac
+}
+
+selected
+
