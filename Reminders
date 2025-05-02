@@ -1,0 +1,23 @@
+#!/usr/bin/env zsh
+
+total_minutes=$(dmenu -p "Total duration (min):")
+if [[ -z $total_minutes || ! $total_minutes =~ ^[0-9]+$ ]]; then
+  exit 1
+fi
+
+interval_minutes=$(dmenu -p "Nag every (min):")
+if [[ -z $interval_minutes || ! $interval_minutes =~ ^[0-9]+$ ]]; then
+  exit 1
+fi
+
+total_secs=$(( total_minutes * 60 ))
+interval_secs=$(( interval_minutes * 60 ))
+end_time=$(date --date="+${total_minutes} minutes" +"%r")
+
+notify-send "⏰ Timer started" "Will end at $end_time."
+sleep $total_secs
+
+while true; do
+  notify-send "🔔 Time's up!" "You've exceeded $total_minutes min."
+  sleep $interval_secs
+done
