@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+# Get translation input using rofi
+input=$(rofi -dmenu -p "Translate:")
+
+# Exit if no input provided
+if [ -z "$input" ]; then
+    exit 0
+fi
+
+# Translate text using trans (brief mode)
+translated=$(trans -s en -t de -b "$input")
+
+# Send silent notification using notify-send
+notify-send -t 5000 -h string:sound:false "Translation" "$translated"
