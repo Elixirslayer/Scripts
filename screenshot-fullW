@@ -1,0 +1,12 @@
+#!/usr/bin/bash
+
+# Directory to save screenshots
+DIR="/home/oc/Screenshots"
+FILE="$DIR/screenshot-$(date +%Y-%m-%d-%H-%M).png"
+mkdir -p "$DIR"
+
+grim "$FILE"
+wl-copy < "$FILE"
+
+notify-send "Screenshot saved" "$FILE"
+

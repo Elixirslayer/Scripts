@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+WALL_DIR=$HOME/wallpapers
+AUTOSTART=$HOME/.dwm/autostart.sh
+
+apply_wallpaper() {
+    local img="$1"
+
+    feh --bg-fill "$img"
+
+    sed -i '/^feh --bg-fill /d' "$AUTOSTART"
+    sed -i "1i feh --bg-fill \"$img\"" "$AUTOSTART"
+}
+
+menu() {
+    if command -v nsxiv >/dev/null; then
+        CHOICE=$(nsxiv -otb "$WALL_DIR"/*)
+    else
+        CHOICE=$(printf "Random\n%s\n" "$(ls -1v "$WALL_DIR")" \
+                 | dmenu -c -l 15 -i -p "Wallpaper:")
+    fi
+
+    case "$CHOICE" in
+        Random)
+            IMG=$(find "$WALL_DIR" -type f | shuf -n1)
+            apply_wallpaper "$IMG"
+            ;;
+        *)
+            if [[ -f "$WALL_DIR/$CHOICE" ]]; then
+                apply_wallpaper "$WALL_DIR/$CHOICE"
+            elif [[ -f "$CHOICE" ]]; then
+                apply_wallpaper "$CHOICE"
+            fi
+            ;;
+    esac
+}
+
+case "$#" in
+    0) menu     ;;
+    1) apply_wallpaper "$1" ;;
+    *) exit 0   ;;
+esac
+
