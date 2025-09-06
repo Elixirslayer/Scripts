@@ -1,12 +1,5 @@
 #!/bin/sh
-
-while true; do
-		# Wait for Waybar to exist
-		while ! pgrep -x "waybar" >/dev/null; do
-				sleep 0.5
-		done
-
-		playerctl -a metadata --format '{{status}} - {{artist}} - {{title}}' --follow | while read -r line; do
-		pgrep -x "waybar" >/dev/null && pkill -RTMIN+10 waybar
-done
+sleep 1
+playerctl -a metadata --format '{{status}} - {{artist}} - {{title}}' --follow | while read -r line; do
+pkill -RTMIN+10 waybar
 done

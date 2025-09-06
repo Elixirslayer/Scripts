@@ -5,7 +5,7 @@ folder="/home/oc/Notes"
 newnote () {
     name="$(echo "" | rofi -dmenu -p "Enter a name:")"
     [[ -z "$name" ]] && return
-    setsid -f "$TERMINAL" -e vim "$folder/$name" >/dev/null 2>&1
+    setsid -w -f foot --hold -e nvim "$folder/$name"
 }
 
 selected () {
@@ -17,7 +17,8 @@ selected () {
     case "$choice" in
         "New") newnote ;;
         "") exit ;;  # Nothing selected
-        *) setsid -f "$TERMINAL" -e vim "$folder/$choice" >/dev/null 2>&1 ;;
+        *)     setsid -w -f foot --hold -e nvim "$folder/$choice"
+ ;;
     esac
 }
 
